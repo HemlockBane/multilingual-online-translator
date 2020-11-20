@@ -21,14 +21,18 @@ headers = {
     'user-agent': chrome_user_agent}
 
 res = requests.get(url, headers=headers)
-print(f'{res.status_code} {res.reason}')
+print(f'{res.status_code} {res.reason}', end='\n\n')
 b_soup = BeautifulSoup(res.content, 'html.parser')
 
 div_tag = b_soup.find('div', id='translations-content')
 filtered_contents = [i for i in div_tag.contents if i not in ['\n']]
 translations = [i.text.strip() for i in filtered_contents]
 
-print('Translations', translations, sep='\n')
+print('Context examples:', end='\n\n')
+print('French Translations:')
+for v in translations[:5]:
+    print(v)
+print('')
 
 section_tag = b_soup.find('section', id='examples-content')
 filtered_contents = [i for i in section_tag.contents if i not in ['\n']]
@@ -41,4 +45,9 @@ for v in filtered_contents:
     if trg:
         examples.append(trg.text)
 filtered_examples = [i.strip() for i in examples if i not in ['\n']]
-print(filtered_examples)
+print('French Examples:', sep='\n')
+# print(filtered_examples)
+for i, v in enumerate(filtered_examples[:10], 1):
+    print(v)
+    if i % 2 == 0 and i < 10:
+        print('')
