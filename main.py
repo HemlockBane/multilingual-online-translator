@@ -12,8 +12,16 @@ def get_translation(session, src_lang, target_lang, text):
     headers = {
         'user-agent': chrome_user_agent}
 
-    res = session.get(url, headers=headers)
-    # print(f'{res.status_code} {res.reason}', end='\n\n')
+    try:
+        res = session.get(url, headers=headers)
+        # print(f'{res.status_code} {res.reason}', end='\n\n')
+        if res.status_code != 200:
+            print(f"Sorry, unable to find {text}")
+            return
+    except requests.exceptions.ConnectionError as e:
+        print('Something wrong with your internet connection')
+        return
+
     b_soup = BeautifulSoup(res.content, 'html.parser')
 
     div_tag = b_soup.find('div', id='translations-content')
@@ -21,8 +29,8 @@ def get_translation(session, src_lang, target_lang, text):
     translations = [i.text.strip() for i in filtered_contents]
 
     with open(f'{text}.txt', mode='a', encoding='utf-8') as file:
-        # print('Context examples:', end='\n')
-        # print('Context examples:', end='\n', file=file)
+        print('Context examples:', end='\n')
+        print('Context examples:', end='\n', file=file)
 
         print(f'{target_lang.capitalize()} Translations:')
         print(f'{target_lang.capitalize()} Translations:', file=file)
@@ -91,6 +99,10 @@ def run_online_translator():
     src_lang = args[1]
     target_lang = args[2]
     text = args[3]
+
+    if target_lang not in supported_langs and target_lang != 'all':
+        print(f"Sorry, the program doesn't support {target_lang}")
+        return
 
     # Comment from requests docs: If you’re making several requests to the same host,
     # the underlying TCP connection will be reused, which can result in a significant performance increase
